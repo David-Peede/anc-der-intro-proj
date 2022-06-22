@@ -4,7 +4,7 @@ import sys
 
 #for i in range(1,23):
 #    chr_list.append(str(i))
-chr_list = [int(sys.argv[1])]
+chr_list = [str(sys.argv[1])]
 
 for chromosome in chr_list:
     infile='tgp_biallelic_snps_chr{0}.vcf.gz'.format(chromosome)

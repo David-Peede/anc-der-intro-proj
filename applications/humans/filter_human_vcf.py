@@ -39,7 +39,7 @@ def filter_tgp_chimp_nean_vcf(vcf):
                     chimp_gt = spline[-2]
                     # If there isn't genotype information for the chimp
                     # continue to the next line.
-                    if (chimp_gt == './.'):
+                    if (chimp_gt[0] == '.'):
                         continue
                     # Else grab the neanderthal genotype info for this site.
                     else:

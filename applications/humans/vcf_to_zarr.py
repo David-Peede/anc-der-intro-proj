@@ -8,8 +8,8 @@ import zarr
 
 
 # Define file paths.
-vcf_path = './zarr_arrays/tgp_chimp_altai_merged_filtered_chr{0}.vcf.gz'.format(str(sys.argv[1]))
-zarr_path = './zarr_arrays/tgp_chimp_altai_merged_filtered_chr{0}.zarr'.format(str(sys.argv[1]))
+vcf_path = './zarr_arrays/tgp_chimp_altai_merged_filtered_biallelic_chr{0}.vcf.gz'.format(str(sys.argv[1]))
+zarr_path = './zarr_arrays/tgp_chimp_altai_merged_filtered_biallelic_chr{0}.zarr'.format(str(sys.argv[1]))
 
 # Convert the vcf file to a zarr array.
 allel.vcf_to_zarr(vcf_path, zarr_path, group=str(sys.argv[1]), fields='*', log=sys.stdout, overwrite=True)

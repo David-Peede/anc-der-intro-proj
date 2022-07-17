@@ -1,169 +1,200 @@
-### Dependencies ###
-import allel
-import numpy as np
-import numcodecs
-import pandas as pd
+# Import packages.
+import gzip
+import random
 import sys
-import zarr
-### sys.argv[1] = target population ###
-### sys.argv[2] = chromosome ###
+### sys.argv[1] = chromosome ###
 
-
-# Define subsetting function.
-def pop_subset(
-    meta_info,
-    geno_mat,
-    pop,
+# Define a function to build population and individual dictionaries.
+def tgp_diccs(
+    pop_list,
+    tgp_meta_file,
 ):
     """
     ###########################################################################
     INPUT
-        meta_info: Metadata dataframe.
-        geno_mat: Original genotype matrix.
-        pop: TGP population to subset.
+        pop_list: List of populations to do site pattern counts for.
+        tgp_meta_file: TGP panel file.
     ---------------------------------------------------------------------------
-    OUTPUT: Haplodify samples for the specific pop.
+    OUTPUT
+        pop_dicc: Dictionary of sample indicies per population.
+        ind_dicc: Dictionary of site patterns per sample.
     ###########################################################################
     """
-    # Identify individuals in the target population.
-    vals = meta_info['pop'].isin([pop]).values
-    # Subset the meta info for only the target population.
-    subset = meta_info[vals]
-    # Get the index values of the indivuals in the target population.
-    idx = subset.index.tolist()
-    # Subset the genotype array for the target population and randomly sample
-    # one allele.
-    subset_geno_mat = geno_mat.take(idx, axis=1).haploidify_samples()
-    return subset_geno_mat
+    # Intialize empty dictionaries.
+    pop_dicc = {}
+    ind_dicc = {}
+    # For every target population.
+    for pop in pop_list:
+        # Fill the dictionary with the pops as keys.
+        pop_dicc[pop] = []
+    # Open the meta info file.
+    with open(tgp_meta_file, 'r') as pop_data:
+        # Skip the header line.
+        next(pop_data)
+        # Intialize a column counter.
+        col_counter = 9
+        # For every line...
+        for line in pop_data:
+            # Split the line.
+            spline = line.split()
+            # Grab the current population.
+            pop = spline[1]
+            # If the population is a target population...
+            if pop in pop_list:
+                # Append the individual to the population list.
+                pop_dicc[pop].append(col_counter)
+                # Intialize a site pattern dictionary for that indiviual.
+                ind_dicc[col_counter] = {
+                    'ABBA': 0,
+                    'BABA': 0,
+                    'BBAA': 0,
+                    'BAAA': 0,
+                    'ABAA': 0,
+                    'AABA': 0,
+                }
+                # Move the colum counter forward.
+                col_counter += 1
+            # Else...
+            else:
+                # Move the colum counter forward.
+                col_counter += 1
+    return pop_dicc, ind_dicc
 
-
-# Define a function to calculate site pattern counts.
-def site_patterns(
-    p1,
-    p2,
-    p3,
+# Define a site pattern function.
+def tgp_trios_site_patterns(
+    pop_list,
+    pop_dicc,
+    ind_dicc,
+    vcf,
 ):
     """
     ###########################################################################
     INPUT
-        p1: P1 lineage.
-        p2: P2 lineage.
-        p3: P3 lineage.
+        pop_list: List of populations to do site pattern counts for.
+        pop_dicc: Dictionary of sample indicies per population.
+        ind_dicc: Dictionary of site patterns per sample.
+        vcf: tgp_chimp_{archaic}_merged_filtered_biallelic_chr{#}.vcf.gz
     ---------------------------------------------------------------------------
-    OUTPUT: Genome counts of ABBA, BABA, BBAA, BAAA, ABAA, and AABA sites.
+    OUTPUT
+        pop_dicc: Dictionary of sample indicies per population with site pattern
+                  counts.
+        header_info: Header line split by tabs.
     ###########################################################################
-    """
-    # Intialize site pattern counts.
-    abba = 0
-    baba = 0
-    bbaa = 0
-    baaa = 0
-    abaa = 0
-    aaba = 0
-    # Loop through every site and calculate site pattern counts.
-    for site in range(p2.shape[0]):
-        if (p1[site] == 0) and (p2[site] == 1) and (p3[site] == 1):
-            abba += 1
-        elif (p1[site] == 1) and (p2[site] == 0) and (p3[site] == 1):
-            baba += 1
-        elif (p1[site] == 1) and (p2[site] == 1) and (p3[site] == 0):
-            bbaa += 1
-        elif (p1[site] == 1) and (p2[site] == 0) and (p3[site] == 0):
-            baaa += 1
-        elif (p1[site] == 0) and (p2[site] == 1) and (p3[site] == 0):
-            abaa += 1
-        elif (p1[site] == 0) and (p2[site] == 0) and (p3[site] == 1):
-            aaba += 1
-        else:
-            continue
-    return abba, baba, bbaa, baaa, abaa, aaba
+    """    
+    # Using the gzip package open the vcf file.
+    with gzip.open(vcf, 'rt') as data:
+        # Intialize RNG.
+        rng_vals = [0, 2]
+        # Loop through every line in the vcf file.
+        for line in data:
+            # If the current line is a part of the meta info...
+            if line.startswith('##'):
+                # Continue to the next line in the vcf file.
+                continue
+            # Else-if the current line is the header line.
+            elif line.startswith('#'):
+                # Split the line.
+                spline = line.split()
+                # Save the header line.
+                header_info = spline
+            # Else...
+            else:
+                # Split the line.
+                spline = line.split()
+                # Randomly select a chromosome to sample.
+                random_chr = random.choice(rng_vals)
+                # Randomly sample a chromosome for the P1, P3, and P4 indiviuals.
+                p1 = spline[1764][random_chr] # YRI individual.
+                p3 = spline[-1][random_chr] # Archaic individual.
+                p4 = spline[-2][random_chr] # panTro6.
+                # For every target population...
+                for pop in pop_list:
+                    # For every individual in the target population.
+                    for ind in pop_dicc[pop]:
+                        # Randomly sample a chromosome.
+                        p2 = spline[ind][random_chr]
+                        # Determine the site pattern for that individual.
+                        # ABBA.
+                        if ((p1 == '0') and (p2 == '1') and (p3 == '1') and (p4 == '0')):
+                            ind_dicc[ind]['ABBA'] += 1
+                        elif ((p1 == '1') and (p2 == '0') and (p3 == '0') and (p4 == '1')):
+                            ind_dicc[ind]['ABBA'] += 1
+                        # BABA.
+                        elif ((p1 == '1') and (p2 == '0') and (p3 == '1') and (p4 == '0')):
+                            ind_dicc[ind]['BABA'] += 1
+                        elif ((p1 == '0') and (p2 == '1') and (p3 == '0') and (p4 == '1')):
+                            ind_dicc[ind]['BABA'] += 1
+                        # BBAA.
+                        elif ((p1 == '1') and (p2 == '1') and (p3 == '0') and (p4 == '0')):
+                            ind_dicc[ind]['BBAA'] += 1
+                        elif ((p1 == '0') and (p2 == '0') and (p3 == '1') and (p4 == '1')):
+                            ind_dicc[ind]['BBAA'] += 1
+                        # BAAA.
+                        elif ((p1 == '1') and (p2 == '0') and (p3 == '0') and (p4 == '0')):
+                            ind_dicc[ind]['BAAA'] += 1
+                        elif ((p1 == '0') and (p2 == '1') and (p3 == '1') and (p4 == '1')):
+                            ind_dicc[ind]['BAAA'] += 1
+                        # ABAA.
+                        elif ((p1 == '0') and (p2 == '1') and (p3 == '0') and (p4 == '0')):
+                            ind_dicc[ind]['ABAA'] += 1
+                        elif ((p1 == '1') and (p2 == '0') and (p3 == '1') and (p4 == '1')):
+                            ind_dicc[ind]['ABAA'] += 1
+                        # AABA.
+                        elif ((p1 == '0') and (p2 == '0') and (p3 == '1') and (p4 == '0')):
+                            ind_dicc[ind]['AABA'] += 1
+                        elif ((p1 == '1') and (p2 == '1') and (p3 == '0') and (p4 == '1')):
+                            ind_dicc[ind]['AABA'] += 1
+                        else:
+                            continue
+    return ind_dicc, header_info
 
-# Define a function to calculate site pattern counts.
-def calculate_human_trio_results(
-    p1,
-    p2,
-    p3,
-    p4,
-):
-    """
-    ###########################################################################
-    INPUT
-        p1: P1 whole-genome sequence.
-        p2: P2 whole-genome sequence.
-        p3: P3 whole-genome sequence.
-        p4: Outgroup whole-genome sequence.
-    ---------------------------------------------------------------------------
-    OUTPUT: Genome wide site pattern counts.
-    ###########################################################################
-    """
-    # Initialize the results array for all trios.
-    trio_results = np.empty((0, 8))
-    # Identify the indicies where the ancestral allele is the alternative allele.
-    polarize_sites_idx = np.where(p4 == 1)[0]
-    # Define a lambda function to polarize sites.
-    polarize = lambda x: abs(x - 1)
-    # Polarize the genotypes for P1 and P3 such that the P4 is always 0.
-    polarized_p1 = np.array([polarize(p1[site_idx]) if site_idx in polarize_sites_idx else p1[site_idx] for site_idx in range(len(p1))])
-    polarized_p3 = np.array([polarize(p3[site_idx]) if site_idx in polarize_sites_idx else p3[site_idx] for site_idx in range(len(p3))])
-    # Loop through every individual in the target population.
-    for ind in range(p2.shape[1]):
-        # Extract the target individual.
-        p2_ind = p2[:, ind]
-        # Polarize the genotypes for the target individual such that the P4
-        # is always 0.
-        polarized_p2 = np.array([polarize(p2_ind[site_idx]) if site_idx in polarize_sites_idx else p2_ind[site_idx] for site_idx in range(len(p2_ind))])
-        # Calculate site pattern counts.
-        abba, baba, bbaa, baaa, abaa, aaba = site_patterns(
-            p1=polarized_p1,
-            p2=polarized_p2,
-            p3=polarized_p3,
-        )
-        # Append the results array.
-        trio_results = np.append(
-            trio_results,
-            [np.asarray([str(sys.argv[1]), int(sys.argv[2]), abba, baba, bbaa, baaa, abaa, aaba])], 
-            axis=0,
-        )
-    return trio_results
+# Load the sys args.
+chrom = str(sys.argv[1])
 
+# Load in the vcf file.
+chrom_vcf = './zarr_arrays/tgp_chimp_altai_merged_filtered_biallelic_chr{0}.vcf.gz'.format(chrom)
 
-# Define the zarr array path.
-zarr_path = './zarr_arrays/tgp_chimp_altai_merged_filtered_biallelic_chr{0}.zarr'.format(str(sys.argv[2]))
+# Load in the meta info.
+tgp_meta_info = './zarr_arrays/tgp_chimp_altai_info.txt'
 
-# Read in zarr array.
-callset = zarr.open_group(zarr_path, mode='r')
+# Define target populations.
+target_pops = [
+    'BEB', 'STU', 'ITU', 'PJL', 'GIH',
+    'TSI', 'CEU', 'IBS', 'GBR', 'FIN',
+    'CHB', 'KHV', 'CHS', 'JPT', 'CDX',
+    'PEL', 'MXL', 'CLM', 'PUR',
+]
 
-# Extract the genotype information.
-gt_zarr = callset[str(sys.argv[2])+'/calldata/GT']
+# Create dictionaries.
+tgp_pop_dicc, tgp_ind_dicc = tgp_diccs(target_pops, tgp_meta_info)
 
-# Convert the gentoype information to a genotype array.
-gt = allel.GenotypeArray(gt_zarr)
-
-# Define the metadata path.
-meta_path = './zarr_arrays/tgp_chimp_altai_info.txt'
-
-# Read in the metadata as a pandas dataframe.
-meta_data = pd.read_csv(meta_path, sep='\t', usecols=['sample', 'pop', 'super_pop'])
-
-# Extract the genotype information for a single YRI individual.
-NA18486_VAL = meta_data['sample'].isin(['NA18486']).values
-NA18486_SUB = meta_data[NA18486_VAL]
-NA18486_IDX = NA18486_SUB.index.tolist()
-yri = gt.take(NA18486_IDX, axis=1).haploidify_samples()
-
-# Extract the genotype information for the other focal populations.
-altai = pop_subset(meta_data, gt, 'ALT')
-chimp = pop_subset(meta_data, gt, 'ANC')
-p2_pop = pop_subset(meta_data, gt, str(sys.argv[1]))
-
-# Calculate the site pattern counts for every P2 individual.
-site_pattern_counts = calculate_human_trio_results(yri, p2_pop, altai, chimp)
-
-# Export the results as a csv file.
-np.savetxt(
-    './tgp_trios/{0}_trios_chr_{1}_site_pattern_counts.csv'.format(str(sys.argv[1]).lower(), str(sys.argv[2])),
-    site_pattern_counts,
-    fmt='%s',
-    delimiter=',',
-    newline='\n',
+# Calculate site patterns per trio.
+tgp_trios_dicc, tgp_header = tgp_trios_site_patterns(
+    target_pops,
+    tgp_pop_dicc,
+    tgp_ind_dicc,
+    chrom_vcf,
 )
+
+# Intialize a results file.
+results_file = open('./tgp_trios/tgp_trios_chr_{0}_site_pattern_counts.csv'.format(chrom), 'w')
+# For all target populations...
+for pop in target_pops:
+    # For all individuals in that population...
+    for ind in tgp_pop_dicc[pop]:
+        # Compile the results for that individual.
+        result_line = [
+            pop,
+            tgp_header[ind],
+            chrom,
+            str(tgp_trios_dicc[ind]['ABBA']),
+            str(tgp_trios_dicc[ind]['BABA']),
+            str(tgp_trios_dicc[ind]['BBAA']),
+            str(tgp_trios_dicc[ind]['BAAA']),
+            str(tgp_trios_dicc[ind]['ABAA']),
+            str(tgp_trios_dicc[ind]['AABA']),
+        ]
+        # Write the results line to the results file.
+        results_file.write(','.join(result_line)+'\n')
+# Close the results file.
+results_file.close()

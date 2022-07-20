@@ -183,34 +183,34 @@ for p2 in p2_list:
     for chromosome in chromosome_list:
         # Calculate site pattern counts for the bootstrapped replicate and store the results.
         abba, baba, baaa, abaa, abba_hom, baba_hom, baaa_hom, abaa_hom = human_freq_site_patterns(
-            P1=tgp_genomes[chromosome]['YRI'],
-            P2=tgp_genomes[chromosome][p2],
-            P3=tgp_genomes[chromosome]['ALT'],
-            P4=tgp_genomes[chromosome]['ANC'],
+            P1=tgp_genomes['YRI'][chromosome],
+            P2=tgp_genomes[p2][chromosome],
+            P3=tgp_genomes['ALT'][chromosome],
+            P4=tgp_genomes['ANC'][chromosome],
         )
-        results_dicc[p2]['ABBA'].append(abba)
-        results_dicc[p2]['ABBA_HOM'].append(abba_hom)
-        results_dicc[p2]['BABA'].append(baba)
-        results_dicc[p2]['BABA_HOM'].append(baba_hom)
-        results_dicc[p2]['BAAA'].append(baaa)
-        results_dicc[p2]['BAAA_HOM'].append(baaa_hom)
-        results_dicc[p2]['ABAA'].append(abaa)
-        results_dicc[p2]['ABAA_HOM'].append(abaa_hom)
+        results_dicc[p2]['ABBA'] += abba
+        results_dicc[p2]['ABBA_HOM'] += abba_hom
+        results_dicc[p2]['BABA'] += baba
+        results_dicc[p2]['BABA_HOM'] += baba_hom
+        results_dicc[p2]['BAAA'] += baaa
+        results_dicc[p2]['BAAA_HOM'] += baaa_hom
+        results_dicc[p2]['ABAA'] += abaa
+        results_dicc[p2]['ABAA_HOM'] += abaa_hom
 # Intialize a results file.
 results_file = open('./tgp_site_patterns.csv', 'w')
 # For all P2 populations...
-for p2 in p2_pops:
+for p2 in p2_list:
     # Compile the results for that population.
     result_line = [
         p2,
-        str(bs_dicc[p2]['ABBA']),
-        str(bs_dicc[p2]['BABA']),
-        str(bs_dicc[p2]['BAAA']),
-        str(bs_dicc[p2]['ABAA']),
-        str(bs_dicc[p2]['ABBA_HOM']),
-        str(bs_dicc[p2]['BABA_HOM']),
-        str(bs_dicc[p2]['BAAA_HOM']),
-        str(bs_dicc[p2]['ABAA_HOM']),
+        str(results_dicc[p2]['ABBA']),
+        str(results_dicc[p2]['BABA']),
+        str(results_dicc[p2]['BAAA']),
+        str(results_dicc[p2]['ABAA']),
+        str(results_dicc[p2]['ABBA_HOM']),
+        str(results_dicc[p2]['BABA_HOM']),
+        str(results_dicc[p2]['BAAA_HOM']),
+        str(results_dicc[p2]['ABAA_HOM']),
     ]
     # Write the results line to the results file.
     results_file.write(','.join(result_line)+'\n')

@@ -105,8 +105,8 @@ def tgp_trios_site_patterns(
                 random_chr = random.choice(rng_vals)
                 # Randomly sample a chromosome for the P1, P3, and P4 indiviuals.
                 p1 = spline[1764][random_chr] # YRI individual.
-                p3 = spline[-1][random_chr] # Archaic individual.
-                p4 = spline[-2][random_chr] # panTro6.
+                p3 = spline[-2][random_chr] # Archaic individual.
+                p4 = spline[-1][random_chr] # EPO ancestral allele call.
                 # For every target population...
                 for pop in pop_list:
                     # For every individual in the target population.
@@ -152,17 +152,17 @@ def tgp_trios_site_patterns(
 chrom = str(sys.argv[1])
 
 # Load in the vcf file.
-chrom_vcf = './zarr_arrays/tgp_chimp_altai_merged_filtered_biallelic_chr{0}.vcf.gz'.format(chrom)
+chrom_vcf = './tgp_altai_merged_filtered_biallelic_chr{0}.vcf.gz'.format(chrom)
 
 # Load in the meta info.
-tgp_meta_info = './zarr_arrays/tgp_chimp_altai_info.txt'
+tgp_meta_info = './tgp_altai_ancestor_info.txt'
 
 # Define target populations.
 target_pops = [
-    'BEB', 'STU', 'ITU', 'PJL', 'GIH',
-    'TSI', 'CEU', 'IBS', 'GBR', 'FIN',
-    'CHB', 'KHV', 'CHS', 'JPT', 'CDX',
-    'PEL', 'MXL', 'CLM', 'PUR',
+    'CEU', 'FIN', 'GBR', 'IBS', 'TSI',
+    'CHB', 'CHS', 'CDX', 'JPT', 'KHV',
+    'BEB', 'GIH', 'ITU', 'PJL', 'STU',
+    'CLM', 'MXL', 'PEL', 'PUR',
 ]
 
 # Create dictionaries.
@@ -177,7 +177,7 @@ tgp_trios_dicc, tgp_header = tgp_trios_site_patterns(
 )
 
 # Intialize a results file.
-results_file = open('./tgp_trios/tgp_trios_chr_{0}_site_pattern_counts.csv'.format(chrom), 'w')
+results_file = open('./tgp_trios/tgp_altai_trios_chr_{0}_site_pattern_counts.csv'.format(chrom), 'w')
 # For all target populations...
 for pop in target_pops:
     # For all individuals in that population...

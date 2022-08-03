@@ -51,10 +51,10 @@ def genome_diccs():
     """
     # Intialize the populations to track.
     pop_list = [
-        'BEB', 'STU', 'ITU', 'PJL', 'GIH',
-        'TSI', 'CEU', 'IBS', 'GBR', 'FIN',
-        'CHB', 'KHV', 'CHS', 'JPT', 'CDX',
-        'PEL', 'MXL', 'CLM', 'PUR',
+        'CEU', 'FIN', 'GBR', 'IBS', 'TSI',
+        'CHB', 'CHS', 'CDX', 'JPT', 'KHV',
+        'BEB', 'GIH', 'ITU', 'PJL', 'STU',
+        'CLM', 'MXL', 'PEL', 'PUR',
         'YRI', 'ALT', 'ANC',
     ]
     # Intialize empty dictionaries.
@@ -67,7 +67,7 @@ def genome_diccs():
             6: {}, 7: {}, 8: {}, 9: {}, 10: {},
             11: {}, 12: {}, 13: {}, 14: {},
             15: {}, 16: {}, 17: {}, 18: {},
-            19: {}, 20: {}, 21: {}, 22: {}, 'X': {},
+            19: {}, 20: {}, 21: {}, 22: {},
         }
     # Initialize empty dictionary to store variable position arrays.
     pos_dicc = {}
@@ -77,17 +77,17 @@ def genome_diccs():
         6, 7, 8, 9, 10,
         11, 12, 13, 14,
         15, 16, 17, 18,
-        19, 20, 21, 22, 'X',
+        19, 20, 21, 22,
     ]
     # Read in the metadata.
-    panel_path = './zarr_arrays/tgp_chimp_altai_info.txt'
+    panel_path = './tgp_altai_ancestor_info.txt'
     panel = pd.read_csv(
         panel_path, sep='\t', usecols=['sample', 'pop', 'super_pop']
     )
     # For every chromosome...
     for chrom in chrom_list:
         # Read in the zarr array and convert to a genotype matrix.
-        zarr_path = './zarr_arrays/tgp_chimp_altai_merged_filtered_biallelic_chr{0}.zarr'.format(chrom)
+        zarr_path = './zarr_arrays/tgp_altai_merged_filtered_biallelic_chr{0}.zarr'.format(chrom)
         callset = zarr.open_group(zarr_path, mode='r')
         chrom_geno_mat = allel.GenotypeArray(callset['{0}/calldata/GT'.format(chrom)])
         # Build the positions dictionary.
@@ -153,10 +153,10 @@ def human_freq_site_patterns(
 tgp_genomes, _ = genome_diccs()
 # Intialize the P2 populations.
 p2_list = [
-    'BEB', 'STU', 'ITU', 'PJL', 'GIH',
-    'TSI', 'CEU', 'IBS', 'GBR', 'FIN',
-    'CHB', 'KHV', 'CHS', 'JPT', 'CDX',
-    'PEL', 'MXL', 'CLM', 'PUR',
+    'CEU', 'FIN', 'GBR', 'IBS', 'TSI',
+    'CHB', 'CHS', 'CDX', 'JPT', 'KHV',
+    'BEB', 'GIH', 'ITU', 'PJL', 'STU',
+    'CLM', 'MXL', 'PEL', 'PUR',
 ]
 # Intialize a dictionary to store bootstrapped values.
 results_dicc = {}
@@ -175,7 +175,7 @@ chromosome_list = [
     6, 7, 8, 9, 10,
     11, 12, 13, 14,
     15, 16, 17, 18,
-    19, 20, 21, 22, 'X',
+    19, 20, 21, 22,
 ]
 # For ever P2 population....
 for p2 in p2_list:
@@ -197,7 +197,7 @@ for p2 in p2_list:
         results_dicc[p2]['ABAA'] += abaa
         results_dicc[p2]['ABAA_HOM'] += abaa_hom
 # Intialize a results file.
-results_file = open('./tgp_site_patterns.csv', 'w')
+results_file = open('./tgp_altai_site_patterns.csv', 'w')
 # For all P2 populations...
 for p2 in p2_list:
     # Compile the results for that population.

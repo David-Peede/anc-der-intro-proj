@@ -88,7 +88,19 @@ def rad_loci_bootstrapping(
     # For each bootstrap replicate.
     for i in range(n_replicates):
         # Randomly generate a cutting sequence.
-        cut_seq = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_1 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_2 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_3 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_4 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_5 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_6 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_7 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        cut_seq_8 = ''.join(np.random.binomial(1, 0.5, 12).astype('str').tolist())
+        # Compile a list of all cut sequences.
+        cut_seqs = [
+            cut_seq_1, cut_seq_2, cut_seq_3, cut_seq_4,
+            cut_seq_5, cut_seq_6, cut_seq_7, cut_seq_8,
+        ]
         # Intialize variable positions sequence.
         p1_var_seq = ''.join(genotype_matrix[:, 0].astype('str').tolist())
         p2_var_seq = ''.join(genotype_matrix[:, 1].astype('str').tolist())
@@ -106,15 +118,15 @@ def rad_loci_bootstrapping(
             p2_sites = p2_var_seq[pos:pos+cut_length]
             p3_sites = p3_var_seq[pos:pos+cut_length]
             # If the P1 individual has the cut sequence...
-            if p1_sites == cut_seq:
+            if p1_sites in cut_seqs:
                 # Append the current position.
                 p1_cut_sites_idx.append(pos)
             # If the P2 individual has the cut sequence...
-            if p2_sites == cut_seq:
+            if p2_sites in cut_seqs:
                 # Append the current position.
                 p2_cut_sites_idx.append(pos)
             # If the P3 individual has the cut sequence...
-            if p3_sites == cut_seq:
+            if p3_sites in cut_seqs:
                 # Append the current position.
                 p3_cut_sites_idx.append(pos)
         # Find all of cut site indicies among all three populations.
@@ -166,7 +178,7 @@ def rad_loci_bootstrapping(
             abaa_array = np.append(abaa_array, abaa)
             aaba_array = np.append(aaba_array, aaba)
             # Append the cut sequence and number of rad sites results.
-            cut_seq_list.append(cut_seq)
+            cut_seq_list.append('-'.join(cut_seqs))
             n_rad_sites_list.append(rad_genotype_matrix.shape[0])
         # Else...
         else:
@@ -178,7 +190,7 @@ def rad_loci_bootstrapping(
             abaa_array = np.append(abaa_array, np.nan)
             aaba_array = np.append(aaba_array, np.nan)
             # Append the cut sequence and number of rad sites results.
-            cut_seq_list.append(cut_seq)
+            cut_seq_list.append('-'.join(cut_seqs))
             n_rad_sites_list.append(0)
     return abba_array, baba_array, bbaa_array, baaa_array, abaa_array, aaba_array, cut_seq_list, np.array(n_rad_sites_list)
 

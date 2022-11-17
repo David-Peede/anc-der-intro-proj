@@ -1,0 +1,50 @@
+time_units: generations
+demes:
+- name: HUM
+  epochs:
+  - {end_time: 26320, start_size: 10000}
+- name: ARC
+  ancestors: [HUM]
+  epochs:
+  - {end_time: 17080, start_size: 10000}
+- name: AMH
+  ancestors: [HUM]
+  epochs:
+  - {end_time: 4400, start_size: 10000}
+- name: NEA
+  ancestors: [ARC]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+- name: DEN
+  ancestors: [ARC]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+- name: AFR
+  ancestors: [AMH]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+- name: EURS
+  ancestors: [AMH]
+  epochs:
+  - {end_time: 1600, start_size: 10000}
+- name: EUR
+  ancestors: [EURS]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+- name: ASN
+  ancestors: [EURS]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+pulses:
+- sources: [NEA]
+  dest: EURS
+  time: 2200
+  proportions: [0.0]
+- sources: [DEN]
+  dest: ASN
+  time: 1500
+  proportions: [0.01]
+- sources: [NEA]
+  dest: ASN
+  time: 880
+  proportions: [0.0]

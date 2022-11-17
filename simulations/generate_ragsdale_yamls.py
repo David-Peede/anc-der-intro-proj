@@ -99,11 +99,11 @@ pulses:
 - sources: [Neanderthal]
   dest: CEU
   proportions: [{0}]
-  time: 322.41379310344826
+  time: 943.1034482758621
 - sources: [Neanderthal]
   dest: CHB
   proportions: [{0}]
-  time: 322.41379310344826'''.format(f_total/2)
+  time: 943.1034482758621'''.format(f_total/2)
     # Open the yaml file.
     yaml_file = open('./yamls/ragsdale_f{0}.yaml'.format(f_total), 'w')
     # Write the yaml.

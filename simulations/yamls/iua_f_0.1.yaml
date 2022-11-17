@@ -1,0 +1,26 @@
+time_units: generations
+demes:
+- name: HUM
+  epochs:
+  - {end_time: 16000, start_size: 10000}
+- name: NEA
+  ancestors: [HUM]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+- name: AMH
+  ancestors: [HUM]
+  epochs:
+  - {end_time: 4000, start_size: 10000}
+- name: AFR
+  ancestors: [AMH]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+- name: EUR
+  ancestors: [AMH]
+  epochs:
+  - {end_time: 0, start_size: 10000}
+pulses:
+- sources: [NEA]
+  dest: EUR
+  time: 1600
+  proportions: [0.1]

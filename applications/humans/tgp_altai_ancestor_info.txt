@@ -2503,5 +2503,5 @@ NA21141	GIH	SAS	female
 NA21142	GIH	SAS	female
 NA21143	GIH	SAS	female
 NA21144	GIH	SAS	female
-panTro6	ANC	OUT	female
 AltaiNeandertal	ALT	ARC	female
+Ancestor	ANC	OUT	female

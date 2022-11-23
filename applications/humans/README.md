@@ -8,6 +8,7 @@ All the data used is publicly available and can be downloaded from the following
 
 - [Phase 3 Release of the 1000 Genomes Project](http://ftp.1000genomes.ebi.ac.uk/vol1/ftp/release/20130502/)
 - [Altai Neanderthal](http://ftp.eva.mpg.de/neandertal/Vindija/VCF/Altai/)
+- [EPO Ancestral Allele Calls](http://ftp.ensembl.org/pub/release-74/fasta/ancestral_alleles/)
 
 ## Merge
 
@@ -72,7 +73,7 @@ python human_site_patterns.py
 Run `human_bootstrap_replicate.py` to generate a single bootstrapped replicate.
 
 ```bash
-# Preform bootstrapping.
+# Perform bootstrapping.
 for REP in {1..1000}; do
 python human_bootstrap_replicate.py ${REP}
 done
@@ -80,4 +81,5 @@ done
 
 ## Analysis
 
-A walkthrough of my analysis can be viewed `human_analyses_v02.ipynb` notebook.
+A walkthrough of my analysis can be viewed in the `human_analyses_v02.ipynb` notebook.
+

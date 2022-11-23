@@ -76,6 +76,8 @@ Run `human_bootstrap_replicate.py` to generate a single bootstrapped replicate.
 for REP in {1..1000}; do
 python human_bootstrap_replicate.py ${REP}
 done
-
 ```
 
+## Analysis
+
+A walkthrough of my analysis can be viewed `human_analyses_v02.ipynb` notebook.

@@ -75,28 +75,6 @@ class Bootstrap:
     
     # Define a function to work on an instance of the window class.
     def do_bootstrapping(self):
-        """
-        ###########################################################################
-        INPUT
-            genotype_matrix: Simulated genome.
-            variable_positions: Variable positions associated with the simulated
-                                genome.
-            n_replicates: Number of bootstrap replicates.
-        ---------------------------------------------------------------------------
-        OUTPUT: List of site pattern counts from bootstrapped replicates.
-        ###########################################################################
-        """
-        """
-        ###########################################################################
-        INPUT
-            genotype_matrix: Simulated genome.
-            variable_positions: Variable positions associated with the simulated
-                                genome.
-            n_replicates: Number of bootstrap replicates.
-        ---------------------------------------------------------------------------
-        OUTPUT: List of site pattern counts from bootstrapped replicates.
-        ###########################################################################
-        """
         # Intialize arrays to store bootstrapped values.
         # CEU.
         ceu_abba_array = np.array([])
@@ -113,7 +91,7 @@ class Bootstrap:
         chb_abaa_array = np.array([])
         chb_aaba_array = np.array([])
         # For each bootstrap replicate.
-        for i in range(10):
+        for i in range(100):
             # Intialize arrays to store bootstrapped values.
             ceu_results = np.zeros(6)
             chb_results = np.zeros(6)
@@ -192,7 +170,6 @@ results = pool.map(Bootstrap.bootstrap_worker, bootstraps)
 # Clean up from multiprocessing.
 pool.close()
 pool.join()
-# Intialize a dictionaries to store results.
 # Intialize a dictionaries to store results.
 bs_ceu = {
     'abba': np.array([]), 'baba': np.array([]), 'bbaa': np.array([]),
